@@ -17,7 +17,8 @@ make -j
 cd ..
 
 # protobuf
-svn checkout http://protobuf.googlecode.com/svn/trunk/ protobuf
+#svn checkout http://protobuf.googlecode.com/svn/trunk/ protobuf
+git clone https://github.com/google/protobuf.git
 cd protobuf
 ./autogen.sh
 ./configure --prefix=$PWD

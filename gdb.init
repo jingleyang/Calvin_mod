@@ -1,0 +1,8 @@
+file bin/deployment/db
+break pthread_create
+break ConnectionMultiplexer::ConnectionMultiplexer
+break connection.cc:65
+break connection.cc:246
+
+set env LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+run 1 m 0
