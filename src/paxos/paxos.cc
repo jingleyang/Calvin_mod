@@ -178,6 +178,9 @@ void Paxos::acreate_completion(int rc, const char *name, const void * data) {
   long secs_used,micros_used;
   secs_used=(end.tv_sec - ptr_start->tv_sec); 
   micros_used= ((secs_used*1000000) + end.tv_usec) - (ptr_start->tv_usec);
+  free(ptr_start);
+  ptr_start = NULL;
+  data= NULL;
   if (rc) {
     printf("Error %d for zoo_acreate.\n", rc);
   }else{
