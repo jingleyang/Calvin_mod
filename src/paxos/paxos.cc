@@ -4,7 +4,7 @@
 // instance, inserting them into a globally consistent batch order.
 
 #include "paxos/paxos.h"
-
+#include <sys/time.h>
 #include <fstream>
 #include <utility>
 #include <vector>
@@ -95,10 +95,12 @@ Paxos::~Paxos() {
 
 void Paxos::SubmitBatch(const string& batch_data) {
   // Submit batch means that create new znode below the root directory.
+  struct timeval *ptr_start = (struct timeval *)malloc(sizeof(struct timeval));
+  gettimeofday(ptr_start, NULL);
   int rc = zoo_acreate(zh_, "/root/batch-", batch_data.c_str(),
                        batch_data.size(), &ZOO_OPEN_ACL_UNSAFE,
                        ZOO_SEQUENCE | ZOO_EPHEMERAL,
-                       acreate_completion, NULL);
+                       acreate_completion, ptr_start);
   if (rc != ZOK) {
     printf("zoo_acreate error:error number is %d\n", rc);
   }
@@ -170,8 +172,16 @@ void Paxos::get_data_completion(int rc, const char *value, int value_len,
 }
 
 void Paxos::acreate_completion(int rc, const char *name, const void * data) {
+  struct timeval *ptr_start = (struct timeval *)data;
+  struct timeval end;
+  gettimeofday(&end, NULL);
+  long secs_used,micros_used;
+  secs_used=(end.tv_sec - ptr_start->tv_sec); 
+  micros_used= ((secs_used*1000000) + end.tv_usec) - (ptr_start->tv_usec);
   if (rc) {
     printf("Error %d for zoo_acreate.\n", rc);
+  }else{
+    printf("[write_opt] Zookeeper_submit_us %ld\n",micros_used);
   }
 }
 
